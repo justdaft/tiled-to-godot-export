@@ -69,7 +69,6 @@ class GodotTilemapExporter {
      * @returns {string}
      */
     setTilesetsString() {
-
         // noinspection JSUnresolvedVariable
         for (let index = 0; index < this.map.tilesets.length; ++index) {
             // noinspection JSUnresolvedVariable
@@ -88,7 +87,6 @@ class GodotTilemapExporter {
      */
     setTileMapsString() {
         const mode = this.map.orientation === TileMap.Isometric ? 1 : undefined
-
         // noinspection JSUnresolvedVariable
         for (let i = 0; i < this.map.layerCount; ++i) {
 
@@ -137,7 +135,6 @@ class GodotTilemapExporter {
                         // Account for anchoring in Godot (corner vs. middle):
                         let objectPositionX = object.x + (object.tile.width / 2);
                         let objectPositionY = object.y - (object.tile.height / 2);
-
                         this.tileMapsString += stringifyNode({
                             name: object.name,
                             type: "Sprite",
@@ -155,7 +152,6 @@ class GodotTilemapExporter {
                         const height = object.height / 2;
                         const objectPositionX = object.x + width;
                         const objectPositionY = object.y + height;
-
                         this.tileMapsString += stringifyNode({
                             name: object.name,
                             type: "Area2D",
@@ -163,9 +159,8 @@ class GodotTilemapExporter {
                             groups: groups
                         }, {
                             collision_layer: object.property("collision_layer"),
-                            collision_mask: object.property("collision_mask")
-                        });
-
+                            collision_mask: object.property("collision_mask"),
+                         });
                         const shapeId = this.addSubResource("RectangleShape2D", {
                             extents: `Vector2( ${width}, ${height} )`
                         });
@@ -181,6 +176,15 @@ class GodotTilemapExporter {
                         this.tileMapsString += stringifyNode({
                             name: object.name,
                             type: "Node2D",
+                            parent: layer.name,
+                            groups: groups
+                        }, {
+                            position: `Vector2( ${object.x}, ${object.y} )`
+                        });
+                    }  else if (object.type == "Position2D") {
+                        this.tileMapsString += stringifyNode({
+                            name: object.name,
+                            type: "Position2D",
                             parent: layer.name,
                             groups: groups
                         }, {
@@ -252,6 +256,7 @@ class GodotTilemapExporter {
                         let tileY = Math.floor(tileId / tilesetColumns);
                         let tileX = (tileId % tilesetColumns);
                         tileGodotID = tileX + (tileY * this.tileOffset);
+                        log(tileGodotID)
                     }
 
                     /**
