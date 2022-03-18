@@ -136,7 +136,7 @@ class GodotTilemapExporter {
                         let objectPositionX = object.x + (object.tile.width / 2);
                         let objectPositionY = object.y - (object.tile.height / 2);
                         this.tileMapsString += stringifyNode({
-                            name: object.name,
+                            name: object.name  + "_xx",
                             type: "Sprite",
                             parent: layer.name
                         }, {
@@ -153,13 +153,14 @@ class GodotTilemapExporter {
                         const objectPositionX = object.x + width;
                         const objectPositionY = object.y + height;
                         this.tileMapsString += stringifyNode({
-                            name: object.name,
+                            name: object.name  + "_xx",
                             type: "Area2D",
                             parent: layer.name,
                             groups: groups
                         }, {
                             collision_layer: object.property("collision_layer"),
                             collision_mask: object.property("collision_mask"),
+                            //__meta__ : '{ "_editor_description_": DestA: ${object.property("DestA")} }'
                          });
                         const shapeId = this.addSubResource("RectangleShape2D", {
                             extents: `Vector2( ${width}, ${height} )`
@@ -167,21 +168,30 @@ class GodotTilemapExporter {
                         this.tileMapsString += stringifyNode({
                             name: "CollisionShape2D",
                             type: "CollisionShape2D",
-                            parent: `${layer.name}/${object.name}`
+                            parent: `${layer.name}/${object.name + "_xx"}`
                         }, {
                             shape: `SubResource( ${shapeId} )`,
                             position: `Vector2( ${objectPositionX}, ${objectPositionY} )`,
                         });
                     } else if (object.type == "Node2D") {
                         this.tileMapsString += stringifyNode({
-                            name: object.name,
+                            name: object.name  + "_xx",
                             type: "Node2D",
                             parent: layer.name,
                             groups: groups
                         }, {
                             position: `Vector2( ${object.x}, ${object.y} )`
                         });
-                    }  else if (object.type == "Position2D") {
+                    }  else if (object.type == "Position2D" && object.name === "") {
+                        this.tileMapsString += stringifyNode({
+                            name: object.type + "_" + Math.trunc(object.x) + Math.trunc(object.y),
+                            type: "Position2D",
+                            parent: layer.name,
+                            groups: groups
+                        }, {
+                            position: `Vector2( ${object.x}, ${object.y} )`
+                        });
+                    }  else if (object.type == "Position2D" ) {
                         this.tileMapsString += stringifyNode({
                             name: object.name,
                             type: "Position2D",
@@ -256,7 +266,6 @@ class GodotTilemapExporter {
                         let tileY = Math.floor(tileId / tilesetColumns);
                         let tileX = (tileId % tilesetColumns);
                         tileGodotID = tileX + (tileY * this.tileOffset);
-                        log(tileGodotID)
                     }
 
                     /**
