@@ -145,7 +145,7 @@ class GodotTilemapExporter {
                             region_enabled: true,
                             region_rect: `Rect2( ${tileOffset.x}, ${tileOffset.y}, ${object.tile.width}, ${object.tile.height} )`
                         });
-                    } else if (object.type == "Area2D" && object.width && object.height) {
+                    } else if (object.type == "Area2D" && object.width && object.height && object.name != "") {
                         // Creates an Area2D node with a rectangle shape inside
                         // Does not support rotation
                         const width = object.width / 2;
@@ -153,7 +153,7 @@ class GodotTilemapExporter {
                         const objectPositionX = object.x + width;
                         const objectPositionY = object.y + height;
                         this.tileMapsString += stringifyNode({
-                            name: object.name  + "_xx",
+                            name: object.name,
                             type: "Area2D",
                             parent: layer.name,
                             groups: groups
@@ -168,14 +168,42 @@ class GodotTilemapExporter {
                         this.tileMapsString += stringifyNode({
                             name: "CollisionShape2D",
                             type: "CollisionShape2D",
-                            parent: `${layer.name}/${object.name + "_xx"}`
+                            parent: `${layer.name}/${object.name}`
+                        }, {
+                            shape: `SubResource( ${shapeId} )`,
+                            position: `Vector2( ${objectPositionX}, ${objectPositionY} )`,
+                        });
+                    } else if (object.type == "Area2D" && object.width && object.height && object.name === "") {
+                        // Creates an Area2D node with a rectangle shape inside
+                        // Does not support rotation
+                        const width = object.width / 2;
+                        const height = object.height / 2;
+                        const objectPositionX = object.x + width;
+                        const objectPositionY = object.y + height;
+                        this.tileMapsString += stringifyNode({
+                            name: object.type + "_" + Math.trunc(object.x) + Math.trunc(object.y),
+                            type: "Area2D",
+                            parent: layer.name,
+                            groups: groups
+                        }, {
+                            collision_layer: object.property("collision_layer"),
+                            collision_mask: object.property("collision_mask"),
+                            //__meta__ : '{ "_editor_description_": DestA: ${object.property("DestA")} }'
+                         });
+                        const shapeId = this.addSubResource("RectangleShape2D", {
+                            extents: `Vector2( ${width}, ${height} )`
+                        });
+                        this.tileMapsString += stringifyNode({
+                            name: "CollisionShape2D",
+                            type: "CollisionShape2D",
+                            parent: `${layer.name}/${object.name}`
                         }, {
                             shape: `SubResource( ${shapeId} )`,
                             position: `Vector2( ${objectPositionX}, ${objectPositionY} )`,
                         });
                     } else if (object.type == "Node2D") {
                         this.tileMapsString += stringifyNode({
-                            name: object.name  + "_xx",
+                            name: object.name,
                             type: "Node2D",
                             parent: layer.name,
                             groups: groups
