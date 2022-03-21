@@ -187,6 +187,7 @@ class GodotTilemapExporter {
                             position: `Vector2( ${object.x}, ${object.y} )`
                         });
                     } else if (object.type == "Position2D") {
+                        // Creates a Position2D, gives Position2D a unique name based on the objects XY location
                         this.tileMapsString += stringifyNode({
                             name: object.type + "_" + Math.trunc(object.x) + Math.trunc(object.y),
                             type: "Position2D",
