@@ -155,6 +155,7 @@ class GodotTilemapExporter {
                         const height = object.height / 2;
                         const objectPositionX = object.x + width;
                         const objectPositionY = object.y + height;
+                        // Creates an editorDescription property that populates the node editor description (__meta__)
                         const editorDescription = object.property("editorDescription") ? object.property("editorDescription") : ""
                         
                         this.tileMapsString += stringifyNode({
@@ -178,6 +179,8 @@ class GodotTilemapExporter {
                             type: "CollisionShape2D",
                             parent: `${layer.name}/${object.name}`
                         }, {
+                            // removed position from CollisionShape2D to allow it to placed inside the Area2D
+                            // position: `Vector2( ${objectPositionX}, ${objectPositionY} )`,
                             shape: `SubResource( ${shapeId} )` 
                         });
                     } else if (object.type == "Area2D" && object.width && object.height && object.name == "") {
@@ -188,6 +191,7 @@ class GodotTilemapExporter {
                         const objectPositionX = object.x + width;
                         const objectPositionY = object.y + height;
                         const newName = object.type + "_" + Math.trunc(object.x) + Math.trunc(object.y)
+                        // Creates an editorDescription property that populates the node editor description (__meta__)
                         const editorDescription = object.property("editorDescription") ? object.property("editorDescription") : ""
                         
                         this.tileMapsString += stringifyNode({
@@ -206,11 +210,14 @@ class GodotTilemapExporter {
                         const shapeId = this.addSubResource("RectangleShape2D", {
                             extents: `Vector2( ${width}, ${height} )`
                         });
+
                         this.tileMapsString += stringifyNode({
                             name: "CollisionShape2D",
                             type: "CollisionShape2D",
                             parent: `${layer.name}/${newName}`
                         }, {
+                            // removed position from CollisionShape2D to allow it to placed inside the Area2D
+                            // position: `Vector2( ${objectPositionX}, ${objectPositionY} )`,
                             shape: `SubResource( ${shapeId} )`
                         });
                     }  else if (object.type == "Node2D") {
