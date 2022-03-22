@@ -200,7 +200,7 @@ class GodotTilemapExporter {
                             parent: layer.name,
                             groups: groups
                         }, {
-                            position: `Vector2( ${object.x}, ${object.y} )`,
+                            position: `Vector2( ${objectPositionX}, ${objectPositionY} )`,
                             __meta__ : `{"_editor_description_": "${editorDescription}"}`,
                         }, {
                             collision_layer: object.property("collision_layer"),
