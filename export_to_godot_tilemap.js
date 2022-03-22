@@ -112,7 +112,7 @@ class GodotTilemapExporter {
                     name: layer.name,
                     type: "Node2D",
                     parent: ".",
-                    groups: splitCommaSeparated(layer.property("groups"))
+                    groups: splitCommaSeparated(layer.property("groups")),
                 });
 
                 // add entities
@@ -148,19 +148,23 @@ class GodotTilemapExporter {
                             region_enabled: true,
                             region_rect: `Rect2( ${tileOffset.x}, ${tileOffset.y}, ${object.tile.width}, ${object.tile.height} )`
                         });
-                    } else if (object.type == "Area2D" && object.width && object.height) {
+                    } else if (object.type == "Area2D" && object.width && object.height  && object.name != "") {
                         // Creates an Area2D node with a rectangle shape inside
                         // Does not support rotation
                         const width = object.width / 2;
                         const height = object.height / 2;
                         const objectPositionX = object.x + width;
                         const objectPositionY = object.y + height;
-
+                        const editorDescription = object.property("editorDescription") ? object.property("editorDescription") : ""
+                        
                         this.tileMapsString += stringifyNode({
                             name: object.name,
                             type: "Area2D",
                             parent: layer.name,
                             groups: groups
+                        }, {
+                            position: `Vector2( ${object.x}, ${object.y} )`, 
+                            __meta__ : `{"_editor_description_": "${editorDescription}"}`,
                         }, {
                             collision_layer: object.property("collision_layer"),
                             collision_mask: object.property("collision_mask")
@@ -174,10 +178,42 @@ class GodotTilemapExporter {
                             type: "CollisionShape2D",
                             parent: `${layer.name}/${object.name}`
                         }, {
-                            shape: `SubResource( ${shapeId} )`,
-                            position: `Vector2( ${objectPositionX}, ${objectPositionY} )`,
+                            shape: `SubResource( ${shapeId} )` 
                         });
-                    } else if (object.type == "Node2D") {
+                    } else if (object.type == "Area2D" && object.width && object.height && object.name == "") {
+                        // Creates an Area2D node with a rectangle shape inside
+                        // Does not support rotation
+                        const width = object.width / 2;
+                        const height = object.height / 2;
+                        const objectPositionX = object.x + width;
+                        const objectPositionY = object.y + height;
+                        const newName = object.type + "_" + Math.trunc(object.x) + Math.trunc(object.y)
+                        const editorDescription = object.property("editorDescription") ? object.property("editorDescription") : ""
+                        
+                        this.tileMapsString += stringifyNode({
+                            name: newName,
+                            type: "Area2D",
+                            parent: layer.name,
+                            groups: groups
+                        }, {
+                            position: `Vector2( ${object.x}, ${object.y} )`,
+                            __meta__ : `{"_editor_description_": "${editorDescription}"}`,
+                        }, {
+                            collision_layer: object.property("collision_layer"),
+                            collision_mask: object.property("collision_mask")
+                        });
+
+                        const shapeId = this.addSubResource("RectangleShape2D", {
+                            extents: `Vector2( ${width}, ${height} )`
+                        });
+                        this.tileMapsString += stringifyNode({
+                            name: "CollisionShape2D",
+                            type: "CollisionShape2D",
+                            parent: `${layer.name}/${newName}`
+                        }, {
+                            shape: `SubResource( ${shapeId} )`
+                        });
+                    }  else if (object.type == "Node2D") {
                         this.tileMapsString += stringifyNode({
                             name: object.name,
                             type: "Node2D",
